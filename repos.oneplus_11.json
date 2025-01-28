@@ -1,0 +1,10 @@
+[
+  {
+    "NAME": "一加11",
+    "CPU": "sm8550",
+    "FEIL": "oneplus_11_v",
+    "CPUD": "kalama",
+    "ANDROID_VERSION": "android14",
+    "KERNEL_VERSION": "5.15"
+  }
+]

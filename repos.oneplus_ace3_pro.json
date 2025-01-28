@@ -1,0 +1,10 @@
+[
+  {
+    "NAME": "一加Ace 3 Pro",
+    "CPU": "sm8650",
+    "FEIL": "oneplus_ace3_pro_v",
+    "CPUD": "pineapple",
+    "ANDROID_VERSION": "android14",
+    "KERNEL_VERSION": "6.1"
+  }
+]

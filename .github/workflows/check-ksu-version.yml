@@ -1,0 +1,100 @@
+name: 🔄 检查 KSU 版本更新并构建
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # 🕰️ 每30分钟运行一次
+  workflow_dispatch:  # 🎯 也可以手动触发
+
+jobs:
+  check-ksu-version:
+    name: "🔍 检查 KSU 版本"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📦 检出代码"
+        uses: actions/checkout@v3
+
+      - name: "🌐 从 GitHub 获取最新 KSU 版本"
+        id: fetch-latest-ksu-version
+        run: |
+          # 🌟 克隆 KernelSU-Next 仓库
+          git clone https://github.com/rifsxd/KernelSU-Next.git
+          cd KernelSU-Next
+          # 📈 获取最新的 KSU_VERSION
+          LATEST_KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
+          echo "最新 KSU 版本: $LATEST_KSU_VERSION"
+          echo "latest_ksu_version=$LATEST_KSU_VERSION" >> $GITHUB_OUTPUT
+
+      - name: "📂 从本地仓库获取当前 KSU 版本"
+        id: fetch-current-ksu-version
+        run: |
+          # 🧐 检查 kernel/Makefile 文件是否存在
+          if [ -f kernel/Makefile ]; then
+            CURRENT_KSU_VERSION=$(cat kernel/Makefile | grep DKSU_VERSION | cut -d '=' -f2)
+            echo "当前 KSU 版本: $CURRENT_KSU_VERSION"
+            echo "current_ksu_version=$CURRENT_KSU_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "kernel/Makefile 文件不存在。将创建一个新的文件。"
+            echo "current_ksu_version=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: "📊 比较 KSU 版本"
+        id: compare-versions
+        run: |
+          CURRENT_KSU_VERSION=${{ steps.fetch-current-ksu-version.outputs.current_ksu_version }}
+          LATEST_KSU_VERSION=${{ steps.fetch-latest-ksu-version.outputs.latest_ksu_version }}
+          if [ "$CURRENT_KSU_VERSION" != "$LATEST_KSU_VERSION" ]; then
+            echo "KSU 版本已更新。触发构建。"
+            echo "trigger_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "KSU 版本未发生变化。无需构建。"
+            echo "trigger_build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: "📝 在本地仓库更新或创建 KSU 版本"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        run: |
+          # 📝 更新或创建 kernel/Makefile 文件
+          LATEST_KSU_VERSION=${{ steps.fetch-latest-ksu-version.outputs.latest_ksu_version }}
+          if [ -f kernel/Makefile ]; then
+            # 📝 文件存在，更新 KSU_VERSION
+            rm -f kernel/Makefile
+          fi
+          # 📝 创建目录（如果不存在）
+          mkdir -p kernel
+          # 📝 创建新的 kernel/Makefile 文件并写入最新的 KSU_VERSION
+          echo "DKSU_VERSION=$LATEST_KSU_VERSION" > kernel/Makefile
+          echo "已在 kernel/Makefile 中更新 KSU 版本为 $LATEST_KSU_VERSION"
+
+      - name: "🚀 提交并推送更改"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        run: |
+          # 📤 提交更改
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add kernel/Makefile
+          git commit -m "更新 KSU_VERSION 至 $LATEST_KSU_VERSION"
+          git push origin HEAD
+
+      - name: "🛠️ 触发构建工作流(OnePlus 11)"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build-oneplus_11.yml
+
+      - name: "🛠️ 触发构建工作流(OnePlus Ace 3V)"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build-oneplus_ace_3v.yml
+
+      - name: "🛠️ 触发构建工作流(OnePlus Ace 3Pro)"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build-oneplus_ace3_pro.yml
+
+      - name: "🛠️ 触发构建工作流(OnePlus 12)"
+        if: ${{ steps.compare-versions.outputs.trigger_build == 'true' }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build-oneplus12.yml
