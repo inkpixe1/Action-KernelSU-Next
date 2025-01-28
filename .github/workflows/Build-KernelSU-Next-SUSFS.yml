@@ -5,11 +5,11 @@ on:
       CPU:
         description: "分支"
         required: true
-        default: 'sm7675'
+        default: 'sm8650'
       FEIL:
         description: "配置文件"
         required: true
-        default: 'oneplus_ace_3v_v'
+        default: 'oneplus12_v'
       CPUD:
         description: "处理器代号"
         required: true
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Maximize build space
+      - name: 📂 释放构建空间
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -37,24 +37,28 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
-          
-      - name: Configure Git
-        run: |
-         git config --global user.name "build"
-         git config --global user.email "3436378798@qq.com"
+        # 释放构建空间，确保有足够的磁盘空间进行构建
 
-      - name: Install dependencies
+      - name: 🔧 配置 Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+        # 配置 Git 用户名和邮箱，用于后续的提交操作
+
+      - name: 📚 安装依赖
         run: |
          sudo apt update && sudo apt upgrade -y
          sudo apt install -y python3 git curl
+        # 安装构建所需的依赖包
 
-      - name: Install repo tool
+      - name: 🛠️ 安装 repo 工具
         run: |
          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
          chmod a+x ~/repo
          sudo mv ~/repo /usr/local/bin/repo
+        # 安装 repo 工具，用于管理多个 Git 仓库
 
-      - name: Initialize repo and sync
+      - name: 🔄 初始化 repo 并同步
         run: |
          mkdir kernel_workspace && cd kernel_workspace
          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
@@ -63,8 +67,9 @@ jobs:
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
          sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
          sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
+        # 初始化 repo 并同步代码，清理不必要的文件
 
-      - name: Set up KernelSU Next
+      - name: 🛠️ 设置 KernelSU Next
         run: |
          cd kernel_workspace/kernel_platform
          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
@@ -72,8 +77,9 @@ jobs:
          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
          sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-        
-      - name: Set up susfs
+        # 设置 KernelSU Next，获取版本号并更新 Makefile
+
+      - name: 🛠️ 设置 susfs
         run: |
            cd kernel_workspace
            git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}
@@ -84,7 +90,7 @@ jobs:
            cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
            cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-           # Apply patches
+           # 应用补丁
            cd ./KernelSU-Next
            patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
            cd ../common
@@ -95,35 +101,40 @@ jobs:
            cd ..
            cd ./msm-kernel && git add -A && git commit -a -m "BUILD Kernel"
            cd ..
-             
+
            cp ../kernel_patches/apk_sign.c_fix.patch ./
            patch -p1 -F 3 < apk_sign.c_fix.patch
-             
+
            cp ../kernel_patches/core_hook.c_fix.patch ./
            patch -p1 --fuzz=3 < ./core_hook.c_fix.patch
-           
+
            cp ../kernel_patches/selinux.c_fix.patch ./
            patch -p1 -F 3 < selinux.c_fix.patch
-           
-      - name: Build kernel
+        # 设置 susfs，应用必要的补丁
+
+      - name: 🛠️ 构建内核
         run: |
          cd kernel_workspace
          ./kernel_platform/oplus/build/oplus_build_kernel.sh ${{ github.event.inputs.CPUD }} gki
-         
-      - name: Make AnyKernel3
+        # 构建内核
+
+      - name: 📦 创建 AnyKernel3
         run: |
          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
          rm -rf ./AnyKernel3/.git
          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
+        # 创建 AnyKernel3 包
 
-      - name: Upload AnyKernel3
+      - name: 📤 上传 AnyKernel3
         uses: actions/upload-artifact@v4
         with:
          name: AnyKernel3_KernelSU_Next_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: ./AnyKernel3/*
-         
-      - name: Upload Image
+        # 上传 AnyKernel3 包
+
+      - name: 📤 上传 Image
         uses: actions/upload-artifact@v4
         with:
          name: Image_KernelSU_Next_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image
+        # 上传内核 Image 文件
