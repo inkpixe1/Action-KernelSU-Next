@@ -116,7 +116,7 @@ jobs:
       - name: "🛠️ 构建内核"
         uses: nick-fields/retry@v3
         env:
-          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}
+          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo)[0].CPUD }}
         with:
           timeout_minutes: 240
           max_attempts: 3
@@ -128,12 +128,12 @@ jobs:
         run: |
           git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
           rm -rf ./AnyKernel3/.git
-          cp $KERNEL_WORKSPACE/kernel_platform/out/msm-kernel-${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}-gki/dist/Image ./AnyKernel3/
+          cp $KERNEL_WORKSPACE/kernel_platform/out/msm-kernel-${{ fromJSON(needs.parse-config.outputs.repo)[0].CPUD }}-gki/dist/Image ./AnyKernel3/
 
       - name: 📤 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}
+          name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo)[0].FEIL }}
           path: "./AnyKernel3/*"
 
       - name: "🧧 创建 GitHub Release"
