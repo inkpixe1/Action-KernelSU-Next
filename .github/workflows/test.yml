@@ -50,7 +50,7 @@ jobs:
 
       - name: "🔍 检查 AnyKernel3 目录内容"
         run: |
-          ls -l $KERNEL_WORKSPACE/AnyKernel3/
+          ls -l $KERNEL_WORKSPACE/
           ls -l ${{ github.workspace }}/
 
       # - name: "🧧 创建 GitHub Release"
