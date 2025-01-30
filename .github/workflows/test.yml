@@ -43,7 +43,7 @@ jobs:
           cp $KERNEL_WORKSPACE/testfile.txt ./AnyKernel3/
 
       - name: "📤 上传构建产物"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: AnyKernel3_KernelSU_Next_${{ github.run_number }}_test
           path: "./AnyKernel3/*"
