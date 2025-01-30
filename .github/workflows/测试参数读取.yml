@@ -26,11 +26,11 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
   build-kernel:
-    name: "🛠️ 构建 KernelSU Next SUSFS"
+    name: "🛠️ 测试参数读取"
     runs-on: ubuntu-latest
     needs: parse-config
     steps:
-      - name: "🔄 测试参数读取1"
+      - name: "🔄 测试参数读取"
         env:
           CPU: ${{ fromJSON(needs.parse-config.outputs.repo).CPU }}
           FEIL: ${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}

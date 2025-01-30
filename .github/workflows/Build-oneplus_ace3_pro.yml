@@ -22,7 +22,7 @@ jobs:
         id: parse
         run: |
           echo "repo<<EOF" >> $GITHUB_OUTPUT
-          jq -s '[.[][]]' ${{ env.REPOS_JSON }} >> $GITHUB_OUTPUT
+          jq '.[]' ${{ env.REPOS_JSON }} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
   build-kernel:
@@ -58,8 +58,8 @@ jobs:
 
       - name: "🔄 初始化 repo 并同步"
         env:
-          CPU: ${{ fromJSON(needs.parse-config.outputs.repo)[0].CPU }}
-          FEIL: ${{ fromJSON(needs.parse-config.outputs.repo)[0].FEIL }}
+          CPU: ${{ fromJSON(needs.parse-config.outputs.repo).CPU }}
+          FEIL: ${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}
         run: |
           mkdir -p $KERNEL_WORKSPACE && cd $KERNEL_WORKSPACE
           repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${CPU} -m ${FEIL}.xml --depth=1
@@ -81,8 +81,8 @@ jobs:
 
       - name: "🛠️ 设置 susfs"
         env:
-          ANDROID_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo)[0].ANDROID_VERSION }}
-          KERNEL_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo)[0].KERNEL_VERSION }}
+          ANDROID_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo).ANDROID_VERSION }}
+          KERNEL_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo).KERNEL_VERSION }}
         run: |
           cd $KERNEL_WORKSPACE
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-${ANDROID_VERSION}-${KERNEL_VERSION}
@@ -116,7 +116,7 @@ jobs:
       - name: "🛠️ 构建内核"
         uses: nick-fields/retry@v3
         env:
-          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo)[0].CPUD }}
+          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}
         with:
           timeout_minutes: 240
           max_attempts: 3
@@ -128,12 +128,12 @@ jobs:
         run: |
           git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
           rm -rf ./AnyKernel3/.git
-          cp $KERNEL_WORKSPACE/kernel_platform/out/msm-kernel-${{ fromJSON(needs.parse-config.outputs.repo)[0].CPUD }}-gki/dist/Image ./AnyKernel3/
+          cp $KERNEL_WORKSPACE/kernel_platform/out/msm-kernel-${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}-gki/dist/Image ./AnyKernel3/
 
       - name: 📤 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo)[0].FEIL }}
+          name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}
           path: "./AnyKernel3/*"
 
       - name: "🧧 创建 GitHub Release"
