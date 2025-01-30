@@ -22,7 +22,7 @@ jobs:
         id: parse
         run: |
           echo "repo<<EOF" >> $GITHUB_OUTPUT
-          jq -s '[.[][]]' ${{ env.REPOS_JSON }} >> $GITHUB_OUTPUT
+          jq '.[]' ${{ env.REPOS_JSON }} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
   build-kernel:
@@ -32,11 +32,11 @@ jobs:
     steps:
       - name: "🔄 测试参数读取1"
         env:
-          CPU: ${{ fromJSON(needs.parse-config.outputs.repo)[0].CPU }}
-          FEIL: ${{ fromJSON(needs.parse-config.outputs.repo)[0].FEIL }}
-          ANDROID_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo)[0].ANDROID_VERSION }}
-          KERNEL_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo)[0].KERNEL_VERSION }}
-          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo)[0].CPUD }}
+          CPU: ${{ fromJSON(needs.parse-config.outputs.repo).CPU }}
+          FEIL: ${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}
+          ANDROID_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo).ANDROID_VERSION }}
+          KERNEL_VERSION: ${{ fromJSON(needs.parse-config.outputs.repo).KERNEL_VERSION }}
+          CPUD: ${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}
         run: |
           echo "CPU: ${CPU}"
           echo "FEIL: ${FEIL}"
