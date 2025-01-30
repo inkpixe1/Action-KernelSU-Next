@@ -136,6 +136,13 @@ jobs:
           name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}
           path: "./AnyKernel3/*"
 
+      - name: "📤 打包"
+        env:
+          anykernel: "AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}"
+        run: |
+          cd AnyKernel3/
+          zip -q -r "${{ env.anykernel }}.zip" *
+
       - name: "🧧 创建 GitHub Release"
         uses: softprops/action-gh-release@v2
         if: ${{ env.release == 'true' }}
@@ -143,4 +150,4 @@ jobs:
           tag_name: "KernelSU-Next-SUSFS-${{ steps.setup-ksu.outputs.KSUVER }}"
           name: "KernelSU Next SUSFS 内核 v${{ steps.setup-ksu.outputs.KSUVER }}"
           generate_release_notes: true
-          files: "./AnyKernel3/*"
+          files: "${{ github.workspace }}/AnyKernel3/AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ fromJSON(needs.parse-config.outputs.repo).FEIL }}.zip"
