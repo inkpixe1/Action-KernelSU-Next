@@ -4,7 +4,7 @@
     "CPU": "sm8550",
     "FEIL": "oneplus_11_v",
     "CPUD": "kalama",
-    "ANDROID_VERSION": "android14",
+    "ANDROID_VERSION": "android13",
     "KERNEL_VERSION": "5.15"
   }
 ]
