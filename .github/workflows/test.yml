@@ -32,6 +32,7 @@ jobs:
     steps:
       - name: "🛠️ 模拟生成构建产物"
         run: |
+          mkdir -p $KERNEL_WORKSPACE && cd $KERNEL_WORKSPACE
           cd $KERNEL_WORKSPACE
           echo "This is a test file" > ./testfile.txt
 
