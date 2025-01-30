@@ -32,8 +32,14 @@ jobs:
     steps:
       - name: "🛠️ 模拟生成构建产物"
         run: |
-          mkdir -p $KERNEL_WORKSPACE/AnyKernel3
-          echo "This is a test file" > $KERNEL_WORKSPACE/AnyKernel3/testfile.txt
+          cd $KERNEL_WORKSPACE
+          echo "This is a test file" > ./testfile.txt
+
+      - name: "🛠️ 创建 AnyKernel3"
+        run: |
+          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
+          rm -rf ./AnyKernel3/.git
+          cp $KERNEL_WORKSPACE/testfile.txt ./AnyKernel3/
 
       - name: "📤 上传构建产物"
         uses: actions/upload-artifact@v4
