@@ -42,8 +42,15 @@ jobs:
           rm -rf ./AnyKernel3/.git
           cp $KERNEL_WORKSPACE/testfile.txt ./AnyKernel3/
 
+      - name: "📤 打包"
+        env:
+          zipname: "AnyKernel3_KernelSU_Next_${{ github.run_number }}_test"
+        run: |
+          cd AnyKernel3/
+          zip -q -r "${{ env.zipname }}.zip" *
+
       - name: "📤 上传构建产物"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AnyKernel3_KernelSU_Next_${{ github.run_number }}_test
           path: "./AnyKernel3/*"
