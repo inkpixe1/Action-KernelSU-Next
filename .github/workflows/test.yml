@@ -48,11 +48,16 @@ jobs:
           name: AnyKernel3_KernelSU_Next_${{ github.run_number }}_test
           path: "./AnyKernel3/*"
 
-      - name: "🧧 创建 GitHub Release"
-        uses: softprops/action-gh-release@v2
-        if: ${{ env.release == 'true' }}
-        with:
-          tag_name: "KernelSU-Next-SUSFS-Test-${{ github.run_number }}"
-          name: "KernelSU Next SUSFS 内核测试 v${{ github.run_number }}"
-          generate_release_notes: true
-          files: "${{ github.workspace }}/AnyKernel3_KernelSU_Next_${{ github.run_number }}_test.zip"
+      - name: "🔍 检查 AnyKernel3 目录内容"
+        run: |
+          ls -l $KERNEL_WORKSPACE/AnyKernel3/
+          ls -l ${{ github.workspace }}/
+
+      # - name: "🧧 创建 GitHub Release"
+      #   uses: softprops/action-gh-release@v2
+      #   if: ${{ env.release == 'true' }}
+      #   with:
+      #     tag_name: "KernelSU-Next-SUSFS-Test-${{ github.run_number }}"
+      #     name: "KernelSU Next SUSFS 内核测试 v${{ github.run_number }}"
+      #     generate_release_notes: true
+      #     files: "${{ github.workspace }}/AnyKernel3_KernelSU_Next_${{ github.run_number }}_test.zip"
