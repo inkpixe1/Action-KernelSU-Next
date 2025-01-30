@@ -114,15 +114,11 @@ jobs:
           patch -p1 -F 3 < selinux.c_fix.patch
 
       - name: "🛠️ 构建内核"
-        uses: nick-fields/retry@v3
         env:
           CPUD: ${{ fromJSON(needs.parse-config.outputs.repo).CPUD }}
-        with:
-          timeout_minutes: 240
-          max_attempts: 3
-          command: |
-            cd $KERNEL_WORKSPACE
-            ./kernel_platform/oplus/build/oplus_build_kernel.sh ${CPUD} gki
+        run: |
+          cd $KERNEL_WORKSPACE
+          ./kernel_platform/oplus/build/oplus_build_kernel.sh ${CPUD} gki
 
       - name: "🛠️ 创建 AnyKernel3"
         run: |
