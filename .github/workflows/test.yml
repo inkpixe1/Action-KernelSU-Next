@@ -50,8 +50,8 @@ jobs:
 
       - name: "🔍 检查 AnyKernel3 目录内容"
         run: |
-          ls -l $KERNEL_WORKSPACE/
-          ls -l ${{ github.workspace }}/
+          ls -la $KERNEL_WORKSPACE/
+          ls -la ${{ github.workspace }}/
 
       # - name: "🧧 创建 GitHub Release"
       #   uses: softprops/action-gh-release@v2
