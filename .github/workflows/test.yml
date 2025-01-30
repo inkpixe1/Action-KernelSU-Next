@@ -55,4 +55,4 @@ jobs:
           tag_name: "KernelSU-Next-SUSFS-Test-${{ github.run_number }}"
           name: "KernelSU Next SUSFS 内核测试 v${{ github.run_number }}"
           generate_release_notes: true
-          files: "${{ env.KERNEL_WORKSPACE }}/AnyKernel3_KernelSU_Next_${{ github.run_number }}_test.zip"
+          files: "${{ github.workspace }}/AnyKernel3_KernelSU_Next_${{ github.run_number }}_test.zip"
