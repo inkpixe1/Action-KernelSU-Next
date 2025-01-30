@@ -26,7 +26,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📂 释放构建空间
         uses: easimon/maximize-build-space@master
@@ -70,6 +70,7 @@ jobs:
         # 初始化 repo 并同步代码，清理不必要的文件
 
       - name: 🛠️ 设置 KernelSU Next
+        id: setup-ksu
         run: |
          cd kernel_workspace/kernel_platform
          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
@@ -128,13 +129,13 @@ jobs:
       - name: 📤 上传 AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-         name: AnyKernel3_KernelSU_Next_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+         name: AnyKernel3_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: ./AnyKernel3/*
         # 上传 AnyKernel3 包
 
       - name: 📤 上传 Image
         uses: actions/upload-artifact@v4
         with:
-         name: Image_KernelSU_Next_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
+         name: Image_KernelSU_Next_${{ steps.setup-ksu.outputs.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image
         # 上传内核 Image 文件
