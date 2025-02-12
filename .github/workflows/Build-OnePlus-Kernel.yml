@@ -1,33 +1,33 @@
-name: Build OnePlus_Kernel
+name: 构建 OnePlus 内核 🌟
 on:
   workflow_dispatch:
     inputs:
       CPU:
-        description: "分支"
+        description: "选择分支 🖥️"
         required: true
         default: 'sm8650'
       FEIL:
-        description: "配置文件"
+        description: "选择配置文件 📄"
         required: true
         default: 'oneplus12_v'
       CPUD:
-        description: "处理器代号"
+        description: "选择处理器代号 🧠"
         required: true
         default: 'pineapple'
       ANDROID_VERSION:
-        description: "内核安卓版本"
+        description: "选择内核安卓版本 📱"
         required: true
         default: 'android14'
       KERNEL_VERSION:
-        description: "内核版本"
+        description: "选择内核版本 🔄"
         required: true
         default: '6.1'
       KERNEL_NAME:
-        description: "修改内核名称"
+        description: "修改内核名称 🖊️"
         required: true
         default: '-android14-11-o-ge17727c4b182'
       kernelsu_variant:
-        description: "选择 KSU"
+        description: "选择 KSU 版本 🔄"
         required: true
         type: choice
         options:
@@ -37,7 +37,7 @@ on:
           - MKSU
         default: Kernel
       kernelsu_version:
-        description: "选择 KSU 版本"
+        description: "选择 KSU 版本类型 🔄"
         required: true
         type: choice
         options:
@@ -46,7 +46,7 @@ on:
           - main (ci)
         default: main
       SUSFS_ENABLED:
-        description: "添加 SUSFS"
+        description: "是否启用 SUSFS 🚀"
         required: true
         type: boolean
         default: true
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Maximize build space
+      - name: 扩大构建空间 📖
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -65,23 +65,23 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
 
-      - name: Configure Git
+      - name: 配置 Git 🐦
         run: |
          git config --global user.name "ychenxuan"
          git config --global user.email "3494167979@qq.com"
 
-      - name: Install dependencies
+      - name: 安装依赖 📦
         run: |
          sudo apt update && sudo apt upgrade -y
          sudo apt install -y python3 git curl
 
-      - name: Install repo tool
+      - name: 安装 repo 工具 🛠️
         run: |
          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/repo
          chmod a+x ~/repo
          sudo mv ~/repo /usr/local/bin/repo
 
-      - name: Initialize repo and sync
+      - name: 初始化 repo 并同步 🌐
         run: |
          mkdir kernel_workspace && cd kernel_workspace
          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
@@ -91,7 +91,7 @@ jobs:
          sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
          sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
 
-      - name: KernelSU & MKSU version
+      - name: KernelSU & MKSU 版本设置 🔄
         if: ${{ github.event.inputs.kernelsu_variant == 'Official' || github.event.inputs.kernelsu_variant == 'MKSU' }}
         run: |
           if [[ "${{ github.event.inputs.kernelsu_version }}" == "tag" ]]; then
@@ -100,7 +100,7 @@ jobs:
             echo "BRANCH=-s main" >> $GITHUB_ENV
           fi
 
-      - name: kernelsu-next version
+      - name: KernelSU-Next 版本设置 🔄
         if: ${{ github.event.inputs.kernelsu_variant == 'Next' }}
         run: |
           if [[ "${{ github.event.inputs.kernelsu_version }}" == "tag" ]]; then
@@ -109,7 +109,7 @@ jobs:
             echo "BRANCH=-s next" >> $GITHUB_ENV
           fi
          
-      - name: Add KernelSU-Official
+      - name: 添加 KernelSU-Official 🛠️
         if: ${{ github.event.inputs.kernelsu_variant == 'Official' }}
         run: |
           cd kernel_workspace/kernel_platform
@@ -119,7 +119,7 @@ jobs:
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
           
-      - name: Add KernelSU-Next
+      - name: 添加 KernelSU-Next 🛠️
         if: ${{ github.event.inputs.kernelsu_variant == 'Next' }}
         run: |
           cd kernel_workspace/kernel_platform
@@ -129,7 +129,7 @@ jobs:
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
           
-      - name: Add KernelSU-MKSU
+      - name: 添加 KernelSU-MKSU 🛠️
         if: ${{ github.event.inputs.kernelsu_variant == 'MKSU' }}
         run: |
           cd kernel_workspace/kernel_platform
@@ -140,7 +140,7 @@ jobs:
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
          
-      - name: Apply SUSFS Patches KernelSU
+      - name: 应用 SUSFS 补丁（KernelSU）🚀
         if: ${{ (github.event.inputs.kernelsu_variant == 'Official') && github.event.inputs.SUSFS_ENABLED == 'true' }}
         run: |
           cd kernel_workspace
@@ -155,11 +155,11 @@ jobs:
           cd ./KernelSU
           patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
           cp ../../kernel_patches/mksu_susfs.patch ../KernelSU/
-          patch -p1 < mksu_susfs.patch
+          patch -p1 < mksu_susfs.patch || true
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           
-      - name: Apply SUSFS Patches KernelSU-Next
+      - name: 应用 SUSFS 补丁（KernelSU-Next）🚀
         if: ${{ (github.event.inputs.kernelsu_variant == 'Next') && github.event.inputs.SUSFS_ENABLED == 'true' }}
         run: |
           cd kernel_workspace
@@ -177,7 +177,7 @@ jobs:
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
          
-      - name: Apply SUSFS Patches MKSU
+      - name: 应用 SUSFS 补丁（MKSU）🚀
         if: ${{ (inputs.kernelsu_variant == 'MKSU') && github.event.inputs.SUSFS_ENABLED == 'true' }}
         run: |
           cd kernel_workspace
@@ -203,7 +203,7 @@ jobs:
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
 
-      - name: Apply Hide Stuff Patches
+      - name: 应用隐藏功能补丁 🛠️
         if: ${{ github.event.inputs.SUSFS_ENABLED == 'true' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
@@ -212,31 +212,31 @@ jobs:
           cp ../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 -F 3 < 69_hide_stuff.patch
 
-      - name: Add make name
+      - name: 添加自定义内核名称 🖊️
         run: |
          cd kernel_workspace/kernel_platform
          sed -i '$s|echo "\$res"|echo "\${{ github.event.inputs.KERNEL_NAME }}"|' ./common/scripts/setlocalversion
          sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
   
-      - name: Build kernel
+      - name: 构建内核 🏗️
         run: |
          cd kernel_workspace
          ./kernel_platform/build_with_bazel.py -t ${{ github.event.inputs.CPUD }} gki
          
-      - name: Make AnyKernel3
+      - name: 制作 AnyKernel3 包 📦
         run: |
          git clone https://github.com/Kernel-SU/AnyKernel3 --depth=1
          rm -rf ./AnyKernel3/.git
          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./AnyKernel3/
          cp kernel_workspace/kernel_platform/out/msm-kernel-${{ github.event.inputs.CPUD }}-gki/dist/Image ./kernel_workspace/kernel
          
-      - name: Upload AnyKernel3
+      - name: 上传 AnyKernel3 📤
         uses: actions/upload-artifact@v4
         with:
          name: AnyKernel3_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: ./AnyKernel3/*
 
-      - name: Upload Image
+      - name: 上传 Image 文件 📤
         uses: actions/upload-artifact@v4
         with:
          name: Image_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
