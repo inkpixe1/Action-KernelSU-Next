@@ -1,8 +1,8 @@
 name: 🔄 检查 KSU 版本更新并构建
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'  # 🕰️ 每6小时运行一次
+  # schedule:
+  #   - cron: '0 */2 * * *'  # 🕰️ 每6小时运行一次
   workflow_dispatch:  # 🎯 也可以手动触发
 
 jobs:
