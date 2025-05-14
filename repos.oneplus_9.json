@@ -1,0 +1,10 @@
+[
+  {
+    "NAME": "一加9",
+    "CPU": "sm8350",
+    "FEIL": "default",
+    "CPUD": "lemonade",
+    "ANDROID_VERSION": "android11",
+    "KERNEL_VERSION": "5.4"
+  }
+]
